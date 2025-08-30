@@ -348,7 +348,9 @@ enum PagePlanHistory {
                 // Must be cleared for something...
                 htm.addln("You are cleared to register for:");
                 htm.addln(" <ul style='list-style: none;'>");
-                htm.addln(" <li>MATH&nbsp;101, MATH&nbsp;105, MATH&nbsp;112, STAT&nbsp;100, STAT&nbsp;201, STAT&nbsp;204, and FIN&nbsp;200</li>");
+                htm.addln(
+                        " <li>MATH&nbsp;101, MATH&nbsp;105, MATH&nbsp;112, STAT&nbsp;100, STAT&nbsp;201, STAT&nbsp;" +
+                        "204, and FIN&nbsp;200</li>");
                 if (cleared117) {
                     htm.addln(" <li>MATH 117</li>");
                 }
@@ -431,8 +433,7 @@ enum PagePlanHistory {
 
         // Show the AUCC core courses regardless
         htm.addln("<li>", catLink("MATH 101"), ", ", catLink("MATH 105"), " or ", catLink("MATH 112"), "</li>");
-        htm.addln("<li>", catLink("FIN 200"), ", ", catLink("STAT 100"), ", ", catLink("STAT 201"), ", or ",
-                catLink("STAT 204"), "</li>");
+        htm.addln("<li>", catLink("STAT 100"), ", ", catLink("STAT 201"), ", or ", catLink("STAT 204"), "</li>");
         htm.addln("</ul>");
 
         htm.addln("<small>These courses each apply toward the All-University Core Curriculum 1B requirement in ",

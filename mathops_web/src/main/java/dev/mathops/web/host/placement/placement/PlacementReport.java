@@ -153,7 +153,7 @@ public final class PlacementReport {
                 htm.addln("<p class='indent11' style='margin-bottom:0;margin-top:10pt;'>");
                 htm.addln("<img style='position:relative; top:-1px' src='/images/error.png'/> &nbsp; ");
 
-                htm.addln("MATH 101, MATH 105, STAT 100, STAT 201, STAT 204, and FIN 200 do not satisfy the degree ",
+                htm.addln("MATH 101, MATH 105, STAT 100, STAT 201, and STAT 204 do not satisfy the degree ",
                         "requirements for some majors.  Consult the <a href='https://www.catalog.colostate.edu/'>",
                         "University Catalog</a> to see if these courses are appropriate for your desired major.");
                 htm.eP();
@@ -167,8 +167,7 @@ public final class PlacementReport {
                     if (status.attemptsRemaining > 0) {
                         htm.sP("indent2");
                         htm.add("To become eligible to register for additional mathematics courses, including MATH " +
-                                "117 or ",
-                                "MATH 120, you should use the <a href='review.html' class='ulink'>",
+                                "117 or MATH 120, you should use the <a href='review.html' class='ulink'>",
                                 "Math Placement Review materials</a> to study, and try the Math Placement Tool again.");
                         htm.eP();
 
@@ -177,9 +176,8 @@ public final class PlacementReport {
                                 "complete the ELM Tutorial and take the ELM Exam.");
                     } else {
                         htm.sP("indent2");
-                        htm.addln(
-                                " To become eligible to register for MATH 117 or MATH 120, you must complete the ELM ",
-                                "Tutorial and take the ELM Exam.");
+                        htm.addln(" To become eligible to register for MATH 117 or MATH 120, you must complete the ",
+                                "ELM Tutorial and take the ELM Exam.");
                     }
                     htm.eP();
                 }

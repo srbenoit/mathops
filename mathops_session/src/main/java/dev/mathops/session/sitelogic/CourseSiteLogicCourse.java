@@ -343,6 +343,7 @@ public final class CourseSiteLogicCourse {
         } else {
             addSpecialStudentCourses();
             final List<RawStcourse> studentCourses = this.data.registrationData.getRegistrations();
+            studentCourses.sort(null);
 
             // Filter courses to only those this website supports
             final Collection<RawStcourse> stCoursesInContext = new ArrayList<>(10);
@@ -534,8 +535,7 @@ public final class CourseSiteLogicCourse {
 
             if ("N".equals(openStatus) && this.courseLabels.containsKey(courseId)) {
                 // Unopened courses do NOT count toward pace
-                this.notAvailableCourses
-                        .add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
+                this.notAvailableCourses.add(new CourseInfo(courseId, this.courseLabels.get(courseId)));
                 continue;
             }
 
@@ -989,24 +989,24 @@ public final class CourseSiteLogicCourse {
                     } else {
                         this.noPrereqIncCourses.add(infoWithLabel);
                     }
-                } else {
-                    if ("G".equals(stcourse.openStatus)) {
-                        this.forfeitCourses.add(infoWithLabel);
-                    } else if ("Y".equals(stcourse.completed)) {
-                        this.completedCourses.add(infoWithLabel);
-                    } else if ("N".equals(stcourse.openStatus)) {
-                        this.notAvailableCourses.add(infoWithLabel);
-                    } else if ("Y".equals(stcourse.openStatus)) {
-                        this.inProgressCourses.add(infoWithLabel);
-                    } else if (prereq) {
-                        if (this.numOpen >= maxOpen || this.incUnopened) {
-                            this.unavailableCourses.add(infoWithLabel);
-                        } else {
-                            this.availableCourses.add(infoWithLabel);
-                        }
+                } else if ("G".equals(stcourse.openStatus)) {
+                    this.forfeitCourses.add(infoWithLabel);
+                } else if ("Y".equals(stcourse.completed)) {
+                    this.completedCourses.add(infoWithLabel);
+                } else if ("N".equals(stcourse.openStatus)) {
+                    this.notAvailableCourses.add(infoWithLabel);
+                } else if ("Y".equals(stcourse.openStatus)) {
+                    this.inProgressCourses.add(infoWithLabel);
+                } else if (prereq) {
+                    if (this.numOpen >= maxOpen || this.incUnopened) {
+                        this.unavailableCourses.add(infoWithLabel);
+                    } else if (this.availableCourses.isEmpty()) {
+                        this.availableCourses.add(infoWithLabel);
                     } else {
-                        this.noPrereqCourses.add(infoWithLabel);
+                        this.unavailableCourses.add(infoWithLabel);
                     }
+                } else {
+                    this.noPrereqCourses.add(infoWithLabel);
                 }
             }
         }
