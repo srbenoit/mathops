@@ -5,8 +5,8 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.logic.challenge.ChallengeExamLogic;
-import dev.mathops.db.old.rawrecord.RawClientPc;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.font.BundledFontManager;
 
 import javax.swing.JPanel;

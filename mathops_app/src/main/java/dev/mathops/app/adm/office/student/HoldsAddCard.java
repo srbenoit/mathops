@@ -5,8 +5,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawHoldType;
+import dev.mathops.db.schema.legacy.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawHoldType;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

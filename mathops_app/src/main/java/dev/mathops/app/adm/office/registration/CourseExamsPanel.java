@@ -9,7 +9,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.schema.legacy.RawStexam;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;

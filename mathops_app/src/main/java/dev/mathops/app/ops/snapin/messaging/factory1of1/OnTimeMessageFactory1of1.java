@@ -2,7 +2,7 @@ package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;

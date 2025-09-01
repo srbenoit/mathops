@@ -4,12 +4,12 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
-import dev.mathops.db.old.rawrecord.RawCunit;
-import dev.mathops.db.old.rawrecord.RawCuobjective;
-import dev.mathops.db.old.rawrecord.RawLesson;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawCourse;
+import dev.mathops.db.schema.legacy.RawCunit;
+import dev.mathops.db.schema.legacy.RawCuobjective;
+import dev.mathops.db.schema.legacy.RawLesson;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;

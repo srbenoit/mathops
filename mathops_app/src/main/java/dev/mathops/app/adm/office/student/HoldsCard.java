@@ -10,9 +10,9 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawHoldType;
-import dev.mathops.db.old.rawrecord.RawUserClearance;
+import dev.mathops.db.schema.legacy.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawHoldType;
+import dev.mathops.db.schema.legacy.RawUserClearance;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

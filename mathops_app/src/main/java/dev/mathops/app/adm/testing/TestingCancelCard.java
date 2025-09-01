@@ -9,7 +9,7 @@ import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawrecord.RawClientPc;
+import dev.mathops.db.schema.legacy.RawClientPc;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

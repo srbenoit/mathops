@@ -5,7 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.challenge.ChallengeExamLogic;
 import dev.mathops.db.logic.challenge.ChallengeExamStatus;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

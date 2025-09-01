@@ -1,6 +1,6 @@
 package dev.mathops.web.host.precalc.course.data;
 
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 
 /**
  * Static {@code CourseData} objects for the Math 117 course.

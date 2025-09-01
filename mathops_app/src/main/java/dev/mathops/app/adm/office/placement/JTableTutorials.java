@@ -2,8 +2,8 @@ package dev.mathops.app.adm.office.placement;
 
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.RawRecordConstants;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ final class JTableTutorials extends AbstractAdmTable<RawStexam> {
         // See if there is an ELM unit 3 review
         for (final RawStexam record : data) {
             if (RawRecordConstants.M100T.equals(record.course) && Integer.valueOf(3).equals(record.unit)
-                    && Y.equals(record.passed) && "R".equals(record.examType)) {
+                && Y.equals(record.passed) && "R".equals(record.examType)) {
 
                 row[0] = "ELM";
                 row[1] = "Unit 3 Review";

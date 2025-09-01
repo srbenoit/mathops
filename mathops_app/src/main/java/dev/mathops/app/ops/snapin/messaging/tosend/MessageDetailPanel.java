@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmsgLogic;
-import dev.mathops.db.old.rawrecord.RawStmsg;
+import dev.mathops.db.schema.legacy.RawStmsg;
 import dev.mathops.app.ops.snapin.messaging.CanvasMessageSend;
 import dev.mathops.app.ops.snapin.messaging.MessagingFull;
 

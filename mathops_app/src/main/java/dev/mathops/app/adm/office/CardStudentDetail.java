@@ -21,7 +21,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;

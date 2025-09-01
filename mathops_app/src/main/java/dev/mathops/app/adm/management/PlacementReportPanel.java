@@ -13,12 +13,12 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawMpeCredit;
-import dev.mathops.db.old.rawrecord.RawMpecrDenied;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStmpe;
-import dev.mathops.db.old.rawrecord.RawStsurveyqa;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawMpeCredit;
+import dev.mathops.db.schema.legacy.RawMpecrDenied;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawStmpe;
+import dev.mathops.db.schema.legacy.RawStsurveyqa;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;

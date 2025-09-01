@@ -12,8 +12,8 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
-import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
+import dev.mathops.db.schema.legacy.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.RawMilestoneAppeal;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 

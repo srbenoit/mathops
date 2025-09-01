@@ -11,9 +11,9 @@ import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.types.EMathPlanStatus;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStmathplan;
-import dev.mathops.db.old.rawrecord.RawStmpe;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStmathplan;
+import dev.mathops.db.schema.legacy.RawStmpe;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;

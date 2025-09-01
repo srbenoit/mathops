@@ -13,7 +13,7 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;

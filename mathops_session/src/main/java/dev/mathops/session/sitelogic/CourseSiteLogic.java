@@ -3,7 +3,7 @@ package dev.mathops.session.sitelogic;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.data.SiteData;
 

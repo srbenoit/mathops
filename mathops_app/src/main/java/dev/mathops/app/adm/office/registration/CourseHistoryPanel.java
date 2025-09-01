@@ -7,7 +7,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 

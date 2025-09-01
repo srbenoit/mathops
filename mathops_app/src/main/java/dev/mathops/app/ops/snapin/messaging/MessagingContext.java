@@ -1,15 +1,15 @@
 package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.db.logic.course.PrerequisiteLogic;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.rawrecord.RawStmsg;
-import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawSthomework;
+import dev.mathops.db.schema.legacy.RawStmilestone;
+import dev.mathops.db.schema.legacy.RawStmsg;
+import dev.mathops.db.schema.legacy.RawStterm;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
 
 import java.time.DayOfWeek;

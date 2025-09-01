@@ -11,20 +11,20 @@ import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawCusection;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.rawrecord.RawPendingExam;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawCsection;
+import dev.mathops.db.schema.legacy.RawCusection;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawPacingStructure;
+import dev.mathops.db.schema.legacy.RawPendingExam;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawStmilestone;
+import dev.mathops.db.schema.legacy.RawStterm;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.text.builder.HtmlBuilder;
 
@@ -533,13 +533,13 @@ class EligibilityTesterBase {
             // registration record
             boolean isSpecial = false;
             if (RawRecordConstants.M117.equals(course) || RawRecordConstants.M118.equals(course)
-                    || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
-                    || RawRecordConstants.M126.equals(course)
-                    || RawRecordConstants.MATH117.equals(course)
-                    || RawRecordConstants.MATH118.equals(course)
-                    || RawRecordConstants.MATH124.equals(course)
-                    || RawRecordConstants.MATH125.equals(course)
-                    || RawRecordConstants.MATH126.equals(course)) {
+                || RawRecordConstants.M124.equals(course) || RawRecordConstants.M125.equals(course)
+                || RawRecordConstants.M126.equals(course)
+                || RawRecordConstants.MATH117.equals(course)
+                || RawRecordConstants.MATH118.equals(course)
+                || RawRecordConstants.MATH124.equals(course)
+                || RawRecordConstants.MATH125.equals(course)
+                || RawRecordConstants.MATH126.equals(course)) {
 
                 isSpecial = isSpecial();
             }

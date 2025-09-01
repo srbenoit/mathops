@@ -5,12 +5,12 @@ import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawPacingRules;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.schema.legacy.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawPacingRules;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawSthomework;
 import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;
@@ -93,8 +93,8 @@ public class HomeworkEligibilityTester extends EligibilityTesterBase {
             if (practice || isSpecialStudentId() || isSpecial()) {
                 ok = true;
             } else if (RawRecordConstants.M1170.equals(course) || RawRecordConstants.M1180.equals(course) ||
-                    RawRecordConstants.M1240.equals(course) || RawRecordConstants.M1250.equals(course) ||
-                    RawRecordConstants.M1260.equals(course)) {
+                       RawRecordConstants.M1240.equals(course) || RawRecordConstants.M1250.equals(course) ||
+                       RawRecordConstants.M1260.equals(course)) {
                 ok = checkPrecalcTutorialHWAvailability(cache, reasons, hw);
             } else {
                 ok = checkHWAvailability(cache, now, reasons, hw);

@@ -3,10 +3,10 @@ package dev.mathops.web.host.precalc.course;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawCsection;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;
@@ -308,7 +308,7 @@ enum PageCourseStatus {
             }
 
             if (RawRecordConstants.M124.equals(courseId)
-                    || RawRecordConstants.M126.equals(courseId)) {
+                || RawRecordConstants.M126.equals(courseId)) {
                 htm.div("vgap");
 
                 htm.sDiv("blue");

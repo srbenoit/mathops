@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.schema.legacy.RawStmpe;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

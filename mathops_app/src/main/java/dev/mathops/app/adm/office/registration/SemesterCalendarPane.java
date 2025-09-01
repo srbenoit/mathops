@@ -4,7 +4,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.office.ISemesterCalendarPaneListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.RawCampusCalendar;
 import dev.mathops.db.rec.TermWeekRec;
 
 import javax.swing.JPanel;

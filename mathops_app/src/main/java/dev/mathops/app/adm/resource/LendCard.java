@@ -14,10 +14,10 @@ import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStresourceLogic;
-import dev.mathops.db.old.rawrecord.RawResource;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStresource;
+import dev.mathops.db.schema.legacy.RawResource;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStresource;
 import dev.mathops.db.rec.TermRec;
 
 import javax.swing.BorderFactory;

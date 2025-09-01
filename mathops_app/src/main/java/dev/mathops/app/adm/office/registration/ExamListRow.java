@@ -1,7 +1,7 @@
 package dev.mathops.app.adm.office.registration;
 
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStqa;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawStqa;
 import dev.mathops.db.rec.RecBase;
 
 import java.util.ArrayList;

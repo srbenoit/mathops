@@ -10,7 +10,7 @@ import dev.mathops.db.old.rawlogic.LogicUtils;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegFa;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSm;
 import dev.mathops.db.old.schema.csubanner.ImplLiveRegSp;
-import dev.mathops.db.rec.LiveReg;
+import dev.mathops.db.schema.live.LiveReg;
 import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;

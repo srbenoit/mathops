@@ -6,8 +6,8 @@ import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawlogic.RawLoginsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawLogins;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawLogins;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.session.LiveSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 

@@ -5,7 +5,7 @@ import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.StudentMathPlan;
 import dev.mathops.db.logic.mathplan.types.EMathPlanStatus;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.schema.legacy.RawStmpe;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import jakarta.servlet.ServletRequest;

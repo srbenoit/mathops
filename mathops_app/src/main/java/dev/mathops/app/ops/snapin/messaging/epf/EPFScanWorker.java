@@ -4,9 +4,9 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.IProgressListener;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
 import dev.mathops.app.ops.snapin.messaging.ScannerStatus;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
+import dev.mathops.db.schema.RawRecordConstants;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;

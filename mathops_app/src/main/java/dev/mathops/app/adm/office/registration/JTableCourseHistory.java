@@ -2,7 +2,7 @@ package dev.mathops.app.adm.office.registration;
 
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;

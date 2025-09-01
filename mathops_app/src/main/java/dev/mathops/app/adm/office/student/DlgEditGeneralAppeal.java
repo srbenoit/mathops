@@ -12,9 +12,9 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
-import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
-import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.schema.legacy.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.RawMilestoneAppeal;
+import dev.mathops.db.schema.legacy.RawPaceAppeals;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 

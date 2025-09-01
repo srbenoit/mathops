@@ -18,15 +18,15 @@ import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
 import dev.mathops.db.old.rawlogic.RawSthwqaLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawSthomework;
-import dev.mathops.db.old.rawrecord.RawSthwqa;
+import dev.mathops.db.schema.legacy.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawCsection;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawSthomework;
+import dev.mathops.db.schema.legacy.RawSthwqa;
 import dev.mathops.db.rec.AssignmentRec;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.servlet.HomeworkEligibilityTester;
 import dev.mathops.session.txn.handlers.AbstractHandlerBase;
@@ -347,15 +347,15 @@ public final class HomeworkSession extends HtmlSessionBase {
                         // 'TUTOR', 'ADMIN' special student types automatically in section "001" for
                         // 117, 118, 124, 125, 126.
                         if (RawRecordConstants.M117.equals(avail.courseId)
-                                || RawRecordConstants.M118.equals(avail.courseId)
-                                || RawRecordConstants.M124.equals(avail.courseId)
-                                || RawRecordConstants.M125.equals(avail.courseId)
-                                || RawRecordConstants.M126.equals(avail.courseId)
-                                || RawRecordConstants.MATH117.equals(avail.courseId)
-                                || RawRecordConstants.MATH118.equals(avail.courseId)
-                                || RawRecordConstants.MATH124.equals(avail.courseId)
-                                || RawRecordConstants.MATH125.equals(avail.courseId)
-                                || RawRecordConstants.MATH126.equals(avail.courseId)) {
+                            || RawRecordConstants.M118.equals(avail.courseId)
+                            || RawRecordConstants.M124.equals(avail.courseId)
+                            || RawRecordConstants.M125.equals(avail.courseId)
+                            || RawRecordConstants.M126.equals(avail.courseId)
+                            || RawRecordConstants.MATH117.equals(avail.courseId)
+                            || RawRecordConstants.MATH118.equals(avail.courseId)
+                            || RawRecordConstants.MATH124.equals(avail.courseId)
+                            || RawRecordConstants.MATH125.equals(avail.courseId)
+                            || RawRecordConstants.MATH126.equals(avail.courseId)) {
 
                             final List<RawSpecialStus> specials = RawSpecialStusLogic
                                     .queryActiveByStudent(cache, this.studentId, now.toLocalDate());

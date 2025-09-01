@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.ReportPermsRec;
 import dev.mathops.db.reclogic.ReportPermsLogic;
 import dev.mathops.session.ImmutableSessionInfo;

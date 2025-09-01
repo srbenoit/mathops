@@ -5,11 +5,11 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawCusection;
-import dev.mathops.db.old.rawrecord.RawPacingStructure;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawCusection;
+import dev.mathops.db.schema.legacy.RawPacingStructure;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.RawRecordConstants;
 
 import java.sql.SQLException;
 

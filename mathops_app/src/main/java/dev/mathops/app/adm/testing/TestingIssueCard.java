@@ -16,9 +16,9 @@ import dev.mathops.db.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.challenge.ChallengeExamLogic;
-import dev.mathops.db.old.rawrecord.RawExam;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.schema.legacy.RawExam;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;

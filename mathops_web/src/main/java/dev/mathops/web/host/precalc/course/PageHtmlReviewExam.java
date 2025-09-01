@@ -2,7 +2,7 @@ package dev.mathops.web.host.precalc.course;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -63,10 +63,10 @@ enum PageHtmlReviewExam {
                 if ("UOOOO".equals(examId) || "UOPOP".equals(examId)) {
                     redirect = "users_exam.html";
                 } else if (RawRecordConstants.MATH117.equals(course)
-                        || RawRecordConstants.MATH118.equals(course)
-                        || RawRecordConstants.MATH124.equals(course)
-                        || RawRecordConstants.MATH125.equals(course)
-                        || RawRecordConstants.MATH126.equals(course)) {
+                           || RawRecordConstants.MATH118.equals(course)
+                           || RawRecordConstants.MATH124.equals(course)
+                           || RawRecordConstants.MATH125.equals(course)
+                           || RawRecordConstants.MATH126.equals(course)) {
                     redirect = "course_text_module.html?course=" + course
                             + "&module=" + unit
                             + "&mode=" + mode;

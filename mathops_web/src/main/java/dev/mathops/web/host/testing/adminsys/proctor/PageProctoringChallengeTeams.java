@@ -3,7 +3,7 @@ package dev.mathops.web.host.testing.adminsys.proctor;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawWhichDb;
+import dev.mathops.db.schema.legacy.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

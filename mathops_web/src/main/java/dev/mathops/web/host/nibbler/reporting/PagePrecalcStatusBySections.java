@@ -3,7 +3,7 @@ package dev.mathops.web.host.nibbler.reporting;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.schema.legacy.RawCsection;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.dbjobs.report.HtmlCsvCourseProgressReport;
 import dev.mathops.session.ImmutableSessionInfo;

@@ -2,7 +2,7 @@ package dev.mathops.app.adm.office.student;
 
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
 
 import java.io.Serial;
 import java.util.ArrayList;

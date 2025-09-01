@@ -2,7 +2,7 @@ package dev.mathops.web.host.nibbler.scheduling;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

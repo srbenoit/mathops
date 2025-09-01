@@ -4,8 +4,8 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.old.rawrecord.RawStsurveyqa;
-import dev.mathops.db.old.rawrecord.RawSurveyqa;
+import dev.mathops.db.schema.legacy.RawStsurveyqa;
+import dev.mathops.db.schema.legacy.RawSurveyqa;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.LocalDateTime;

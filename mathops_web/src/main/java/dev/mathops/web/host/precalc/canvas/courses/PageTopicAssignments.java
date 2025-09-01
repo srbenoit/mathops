@@ -7,7 +7,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.course.MetadataCourseModule;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.db.rec.main.StandardAssignmentRec;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
 import dev.mathops.db.rec.main.StandardsCourseRec;

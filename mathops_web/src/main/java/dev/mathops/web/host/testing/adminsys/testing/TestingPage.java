@@ -1,7 +1,7 @@
 package dev.mathops.web.host.testing.adminsys.testing;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawWhichDb;
+import dev.mathops.db.schema.legacy.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

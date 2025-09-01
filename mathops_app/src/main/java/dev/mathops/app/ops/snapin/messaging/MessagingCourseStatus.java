@@ -1,9 +1,9 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawSthomework;
 
 import java.time.LocalDate;
 import java.util.HashMap;

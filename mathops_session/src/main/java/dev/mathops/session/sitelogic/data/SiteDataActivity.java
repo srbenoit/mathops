@@ -3,8 +3,8 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawSthomework;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawSthomework;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

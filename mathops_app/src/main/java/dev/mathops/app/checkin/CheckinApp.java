@@ -17,10 +17,10 @@ import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
-import dev.mathops.db.old.rawrecord.RawCampusCalendar;
-import dev.mathops.db.old.rawrecord.RawClientPc;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.builder.SimpleBuilder;
 

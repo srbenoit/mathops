@@ -2,9 +2,9 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.old.rawrecord.RawCuobjective;
-import dev.mathops.db.old.rawrecord.RawLesson;
-import dev.mathops.db.old.rawrecord.RawLessonComponent;
+import dev.mathops.db.schema.legacy.RawCuobjective;
+import dev.mathops.db.schema.legacy.RawLesson;
+import dev.mathops.db.schema.legacy.RawLessonComponent;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 

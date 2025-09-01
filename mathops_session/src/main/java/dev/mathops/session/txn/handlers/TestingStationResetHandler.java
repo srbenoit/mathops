@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.old.rawrecord.RawClientPc;
+import dev.mathops.db.schema.legacy.RawClientPc;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.TestingStationResetReply;
 import dev.mathops.session.txn.messages.TestingStationResetRequest;

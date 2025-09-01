@@ -1,7 +1,7 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.db.old.rawrecord.RawClientPc;
-import dev.mathops.db.old.rawrecord.RawExam;
+import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.RawExam;
 import dev.mathops.text.builder.SimpleBuilder;
 
 /**

@@ -6,7 +6,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.schema.legacy.RawCsection;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.db.rec.TermRec;
 

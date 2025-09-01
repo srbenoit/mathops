@@ -2,7 +2,7 @@ package dev.mathops.web.host.placement.tutorial.elm;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

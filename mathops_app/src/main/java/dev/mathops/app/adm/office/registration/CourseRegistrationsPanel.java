@@ -9,7 +9,7 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;

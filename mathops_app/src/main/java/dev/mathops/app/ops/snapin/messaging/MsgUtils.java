@@ -1,9 +1,9 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStmsg;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStmsg;
+import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.DayOfWeek;

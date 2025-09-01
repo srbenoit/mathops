@@ -9,7 +9,7 @@ import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

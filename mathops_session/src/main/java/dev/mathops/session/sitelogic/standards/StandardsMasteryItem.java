@@ -1,6 +1,6 @@
 package dev.mathops.session.sitelogic.standards;
 
-import dev.mathops.db.old.rawrecord.RawStdItem;
+import dev.mathops.db.schema.legacy.RawStdItem;
 
 /**
  * An assessment with a collection if items selected from item groups attached to standards that a student has not yet

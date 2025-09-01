@@ -12,23 +12,23 @@ import dev.mathops.db.logic.course.MilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
 import dev.mathops.db.old.rawlogic.RawStcourseLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawrecord.RawCourse;
-import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawCunit;
-import dev.mathops.db.old.rawrecord.RawCuobjective;
-import dev.mathops.db.old.rawrecord.RawCusection;
-import dev.mathops.db.old.rawrecord.RawExam;
-import dev.mathops.db.old.rawrecord.RawLesson;
-import dev.mathops.db.old.rawrecord.RawLessonComponent;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawSpecialStus;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawCourse;
+import dev.mathops.db.schema.legacy.RawCsection;
+import dev.mathops.db.schema.legacy.RawCunit;
+import dev.mathops.db.schema.legacy.RawCuobjective;
+import dev.mathops.db.schema.legacy.RawCusection;
+import dev.mathops.db.schema.legacy.RawExam;
+import dev.mathops.db.schema.legacy.RawLesson;
+import dev.mathops.db.schema.legacy.RawLessonComponent;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawStmilestone;
+import dev.mathops.db.schema.legacy.RawStterm;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.session.ImmutableSessionInfo;
@@ -961,7 +961,7 @@ enum PageOutline {
             }
 
             if (RawRecordConstants.M124.equals(courseId)
-                    || RawRecordConstants.M126.equals(courseId)) {
+                || RawRecordConstants.M126.equals(courseId)) {
                 htm.div("vgap");
                 htm.sDiv("indent22");
                 htm.sDiv("blue");

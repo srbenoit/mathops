@@ -6,8 +6,8 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawStterm;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
 

@@ -20,8 +20,8 @@ import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPendingExamLogic;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
-import dev.mathops.db.old.rawrecord.RawClientPc;
-import dev.mathops.db.old.rawrecord.RawPendingExam;
+import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.RawPendingExam;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.JFrame;

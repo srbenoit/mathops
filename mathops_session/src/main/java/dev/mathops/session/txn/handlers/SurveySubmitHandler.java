@@ -6,7 +6,7 @@ import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
-import dev.mathops.db.old.rawrecord.RawStsurveyqa;
+import dev.mathops.db.schema.legacy.RawStsurveyqa;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveySubmitReply;
 import dev.mathops.session.txn.messages.SurveySubmitRequest;

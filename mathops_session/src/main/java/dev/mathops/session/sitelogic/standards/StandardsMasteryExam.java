@@ -3,8 +3,8 @@ package dev.mathops.session.sitelogic.standards;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawItemLogic;
 import dev.mathops.db.old.rawlogic.RawStdItemLogic;
-import dev.mathops.db.old.rawrecord.RawItem;
-import dev.mathops.db.old.rawrecord.RawStdItem;
+import dev.mathops.db.schema.legacy.RawItem;
+import dev.mathops.db.schema.legacy.RawStdItem;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

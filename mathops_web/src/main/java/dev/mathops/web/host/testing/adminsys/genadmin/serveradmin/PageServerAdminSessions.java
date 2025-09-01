@@ -4,7 +4,7 @@ import dev.mathops.assessment.exam.ExamObj;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;

@@ -10,12 +10,12 @@ import dev.mathops.db.logic.challenge.ChallengeExamLogic;
 import dev.mathops.db.old.rawlogic.RawClientPcLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawClientPc;
-import dev.mathops.db.old.rawrecord.RawCunit;
-import dev.mathops.db.old.rawrecord.RawPaceAppeals;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.RawCunit;
+import dev.mathops.db.schema.legacy.RawPaceAppeals;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.RawRecordConstants;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

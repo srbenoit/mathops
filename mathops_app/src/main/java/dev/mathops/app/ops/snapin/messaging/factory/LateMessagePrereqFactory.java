@@ -3,14 +3,14 @@ package dev.mathops.app.ops.snapin.messaging.factory;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStmpe;
+import dev.mathops.db.schema.legacy.RawStmpe;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.MsgUtils;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;

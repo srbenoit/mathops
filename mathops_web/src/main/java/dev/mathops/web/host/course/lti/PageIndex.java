@@ -3,7 +3,7 @@ package dev.mathops.web.host.course.lti;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;

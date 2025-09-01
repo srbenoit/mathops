@@ -6,7 +6,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.schema.legacy.RawCsection;
 import dev.mathops.db.rec.TermRec;
 
 import javax.swing.BorderFactory;

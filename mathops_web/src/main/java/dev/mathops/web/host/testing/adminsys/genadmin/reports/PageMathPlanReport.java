@@ -3,7 +3,7 @@ package dev.mathops.web.host.testing.adminsys.genadmin.reports;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.old.rawrecord.RawStmathplan;
+import dev.mathops.db.schema.legacy.RawStmathplan;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

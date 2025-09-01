@@ -9,11 +9,11 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
-import dev.mathops.db.old.rawrecord.RawPaceAppeals;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawMilestoneAppeal;
+import dev.mathops.db.schema.legacy.RawPaceAppeals;
+import dev.mathops.db.schema.legacy.RawStmilestone;
+import dev.mathops.db.schema.legacy.RawStterm;
 import dev.mathops.db.rec.StandardMilestoneRec;
 import dev.mathops.db.rec.StuStandardMilestoneRec;
 

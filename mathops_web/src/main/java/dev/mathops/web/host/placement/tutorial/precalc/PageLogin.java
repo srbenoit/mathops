@@ -1,7 +1,7 @@
 package dev.mathops.web.host.placement.tutorial.precalc;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.RawCampusCalendar;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

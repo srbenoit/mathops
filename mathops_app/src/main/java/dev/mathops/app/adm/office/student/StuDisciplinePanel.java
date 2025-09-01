@@ -5,7 +5,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawDisciplineLogic;
-import dev.mathops.db.old.rawrecord.RawDiscipline;
+import dev.mathops.db.schema.legacy.RawDiscipline;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;

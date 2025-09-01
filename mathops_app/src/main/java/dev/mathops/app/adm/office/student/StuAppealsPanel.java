@@ -13,8 +13,8 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
 import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
-import dev.mathops.db.old.rawrecord.RawMilestoneAppeal;
-import dev.mathops.db.old.rawrecord.RawPaceAppeals;
+import dev.mathops.db.schema.legacy.RawMilestoneAppeal;
+import dev.mathops.db.schema.legacy.RawPaceAppeals;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;

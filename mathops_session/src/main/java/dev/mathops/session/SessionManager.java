@@ -8,7 +8,7 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.session.login.IAuthenticationMethod;
 import dev.mathops.session.login.ILoginProcessor;
 import dev.mathops.session.login.LocalLoginProcessor;

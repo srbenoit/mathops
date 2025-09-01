@@ -12,10 +12,10 @@ import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
 import dev.mathops.db.old.rawlogic.RawResourceLogic;
 import dev.mathops.db.old.rawlogic.RawStresourceLogic;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
-import dev.mathops.db.old.rawrecord.RawResource;
-import dev.mathops.db.old.rawrecord.RawStresource;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawResource;
+import dev.mathops.db.schema.legacy.RawStresource;
+import dev.mathops.db.schema.legacy.RawStudent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;

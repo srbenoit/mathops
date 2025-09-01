@@ -1,7 +1,7 @@
 package dev.mathops.app.checkin;
 
-import dev.mathops.db.old.rawrecord.RawStterm;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStterm;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import java.util.List;

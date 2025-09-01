@@ -5,7 +5,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

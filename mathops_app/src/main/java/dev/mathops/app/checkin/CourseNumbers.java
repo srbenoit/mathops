@@ -1,7 +1,7 @@
 package dev.mathops.app.checkin;
 
 import dev.mathops.db.logic.challenge.ChallengeExamLogic;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 
 import java.util.List;
 

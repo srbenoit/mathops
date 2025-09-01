@@ -8,7 +8,7 @@ import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.session.ExamWriter;
 import dev.mathops.text.builder.HtmlBuilder;

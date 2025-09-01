@@ -2,7 +2,7 @@ package dev.mathops.web.host.placement.tutorial.precalc;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.schema.legacy.RawStexam;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

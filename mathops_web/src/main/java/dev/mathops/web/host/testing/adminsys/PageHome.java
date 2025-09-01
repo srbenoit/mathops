@@ -5,7 +5,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.enums.ERole;
-import dev.mathops.db.old.rawrecord.RawWhichDb;
+import dev.mathops.db.schema.legacy.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.front.BuildDateTime;

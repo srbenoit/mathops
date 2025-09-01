@@ -4,9 +4,9 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawCustdLogic;
 import dev.mathops.db.old.rawlogic.RawStdLogic;
 import dev.mathops.db.old.rawlogic.RawStstdLogic;
-import dev.mathops.db.old.rawrecord.RawCustd;
-import dev.mathops.db.old.rawrecord.RawStd;
-import dev.mathops.db.old.rawrecord.RawStstd;
+import dev.mathops.db.schema.legacy.RawCustd;
+import dev.mathops.db.schema.legacy.RawStd;
+import dev.mathops.db.schema.legacy.RawStstd;
 
 import java.util.ArrayList;
 import java.util.Collection;

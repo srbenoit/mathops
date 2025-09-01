@@ -7,7 +7,7 @@ import dev.mathops.db.logic.DateRangeGroups;
 import dev.mathops.db.logic.placement.PlacementLogic;
 import dev.mathops.db.logic.placement.PlacementStatus;
 import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import dev.mathops.text.builder.HtmlBuilder;

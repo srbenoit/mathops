@@ -1,6 +1,6 @@
 package dev.mathops.app.ops.snapin.messaging.tosend;
 
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 
 import java.util.HashMap;
 import java.util.List;

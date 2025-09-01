@@ -5,12 +5,12 @@ import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawPaceAppeals;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStexam;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawPaceAppeals;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.RawStmilestone;
+import dev.mathops.db.schema.legacy.RawStterm;
 
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;

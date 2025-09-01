@@ -1,14 +1,14 @@
 package dev.mathops.app.ops.snapin.messaging.factory1of1;
 
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStudent;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStudent;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;
 import dev.mathops.app.ops.snapin.messaging.MessagingCourseStatus;
 import dev.mathops.app.ops.snapin.messaging.MsgUtils;
 import dev.mathops.app.ops.snapin.messaging.tosend.MessageToSend;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.LocalTime;

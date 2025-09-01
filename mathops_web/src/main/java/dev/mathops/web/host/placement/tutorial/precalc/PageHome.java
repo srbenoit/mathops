@@ -2,7 +2,7 @@ package dev.mathops.web.host.placement.tutorial.precalc;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawAdminHold;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractPageSite;

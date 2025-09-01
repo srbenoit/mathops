@@ -4,7 +4,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.RegistrationsLogic;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;
 import dev.mathops.text.builder.HtmlBuilder;

@@ -8,7 +8,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
 import dev.mathops.db.ESchema;
-import dev.mathops.db.old.rawrecord.RawAdminHold;
+import dev.mathops.db.schema.legacy.RawAdminHold;
 
 import javax.swing.JPanel;
 import java.awt.BorderLayout;

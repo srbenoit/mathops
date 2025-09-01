@@ -2,8 +2,8 @@ package dev.mathops.app.adm.office.placement;
 
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.rawrecord.RawMpeCredit;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.legacy.RawMpeCredit;
+import dev.mathops.db.schema.RawRecordConstants;
 
 import java.io.Serial;
 import java.util.ArrayList;

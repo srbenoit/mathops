@@ -3,12 +3,12 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawPacingRules;
+import dev.mathops.db.schema.legacy.RawPacingRules;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawrecord.RawCourse;
-import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawPacingStructure;
+import dev.mathops.db.schema.legacy.RawCourse;
+import dev.mathops.db.schema.legacy.RawCsection;
+import dev.mathops.db.schema.legacy.RawPacingStructure;
 
 import java.sql.SQLException;
 import java.util.List;

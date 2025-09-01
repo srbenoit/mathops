@@ -4,7 +4,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawStvisitLogic;
-import dev.mathops.db.old.rawrecord.RawStvisit;
+import dev.mathops.db.schema.legacy.RawStvisit;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

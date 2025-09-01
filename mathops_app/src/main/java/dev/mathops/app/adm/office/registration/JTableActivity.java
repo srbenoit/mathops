@@ -3,7 +3,7 @@ package dev.mathops.app.adm.office.registration;
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.old.rawrecord.RawStexam;
+import dev.mathops.db.schema.legacy.RawStexam;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

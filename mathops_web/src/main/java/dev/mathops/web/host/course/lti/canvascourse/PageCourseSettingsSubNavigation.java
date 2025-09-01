@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.old.rawrecord.RawCsection;
+import dev.mathops.db.schema.legacy.RawCsection;
 import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.rec.main.LtiRegistrationRec;
 import dev.mathops.db.rec.term.LtiContextCourseSectionRec;

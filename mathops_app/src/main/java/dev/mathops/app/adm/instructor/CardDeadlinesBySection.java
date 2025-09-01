@@ -7,7 +7,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.old.rawrecord.RawMilestone;
+import dev.mathops.db.schema.legacy.RawMilestone;
 import dev.mathops.db.reclogic.TermLogic;
 import dev.mathops.db.rec.TermRec;
 

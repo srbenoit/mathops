@@ -4,10 +4,10 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.type.TermKey;
 import dev.mathops.db.old.rawlogic.RawStmilestoneLogic;
 import dev.mathops.db.old.rawlogic.RawSttermLogic;
-import dev.mathops.db.old.rawrecord.RawMilestone;
-import dev.mathops.db.old.rawrecord.RawStcourse;
-import dev.mathops.db.old.rawrecord.RawStmilestone;
-import dev.mathops.db.old.rawrecord.RawStterm;
+import dev.mathops.db.schema.legacy.RawMilestone;
+import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStmilestone;
+import dev.mathops.db.schema.legacy.RawStterm;
 import dev.mathops.db.rec.TermRec;
 
 import java.sql.SQLException;

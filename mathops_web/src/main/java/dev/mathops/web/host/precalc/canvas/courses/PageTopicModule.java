@@ -10,7 +10,7 @@ import dev.mathops.db.course.MetadataSkillsReview;
 import dev.mathops.db.course.MetadataStandard;
 import dev.mathops.db.logic.MainData;
 import dev.mathops.db.logic.TermData;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.db.rec.main.StandardsCourseModuleRec;
 import dev.mathops.db.rec.main.StandardsCourseRec;
 import dev.mathops.db.rec.term.StandardsCourseSectionRec;

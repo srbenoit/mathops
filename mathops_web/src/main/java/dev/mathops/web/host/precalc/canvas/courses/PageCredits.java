@@ -1,9 +1,9 @@
 package dev.mathops.web.host.precalc.canvas.courses;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawrecord.RawCourse;
-import dev.mathops.db.old.rawrecord.RawCsection;
-import dev.mathops.db.old.rawrecord.RawStcourse;
+import dev.mathops.db.schema.legacy.RawCourse;
+import dev.mathops.db.schema.legacy.RawCsection;
+import dev.mathops.db.schema.legacy.RawStcourse;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

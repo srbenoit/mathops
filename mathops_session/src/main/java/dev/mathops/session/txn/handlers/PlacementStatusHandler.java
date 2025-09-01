@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
 import dev.mathops.db.old.rawlogic.RawMpeCreditLogic;
-import dev.mathops.db.old.rawrecord.RawMpeCredit;
+import dev.mathops.db.schema.legacy.RawMpeCredit;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.PlacementStatusReply;
 import dev.mathops.session.txn.messages.PlacementStatusRequest;

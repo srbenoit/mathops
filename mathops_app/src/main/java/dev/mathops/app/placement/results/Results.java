@@ -1,7 +1,7 @@
 package dev.mathops.app.placement.results;
 
 import dev.mathops.app.simplewizard.Wizard;
-import dev.mathops.db.old.rawrecord.RawRecordConstants;
+import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.txn.messages.PlacementStatusReply;
 
 import java.util.Collection;
