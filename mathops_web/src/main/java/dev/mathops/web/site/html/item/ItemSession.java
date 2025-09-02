@@ -4,7 +4,7 @@ import dev.mathops.assessment.InstructionalCache;
 import dev.mathops.assessment.htmlgen.ProblemConverter;
 import dev.mathops.assessment.problem.template.AbstractProblemTemplate;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.db.Cache;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;

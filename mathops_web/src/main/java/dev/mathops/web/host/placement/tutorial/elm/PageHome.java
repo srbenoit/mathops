@@ -6,9 +6,9 @@ import dev.mathops.db.logic.DateRange;
 import dev.mathops.db.logic.DateRangeGroups;
 import dev.mathops.db.logic.course.PrerequisiteLogic;
 import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.impl.RawAdminHoldLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawCampusCalendar;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -136,7 +136,7 @@ final class PageHome {
 
         // Display all holds on the student's account that aren't hold 30
 
-        final List<RawAdminHold> stuHolds = status.holds.holds;
+        final List<RawAdminHold> stuHolds = status.holds;
         for (final RawAdminHold hold : stuHolds) {
             if ("30".equals(hold.holdId)) {
                 continue;

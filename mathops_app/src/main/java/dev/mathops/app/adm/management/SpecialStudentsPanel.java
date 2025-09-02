@@ -7,10 +7,10 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawSpecialStus;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.impl.RawSpecialStusLogic;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import javax.swing.BorderFactory;

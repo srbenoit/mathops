@@ -1,7 +1,7 @@
 package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Contexts;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.mathplan.MathPlanConstants;
@@ -11,9 +11,9 @@ import dev.mathops.db.logic.mathplan.majors.Major;
 import dev.mathops.db.logic.mathplan.majors.Majors;
 import dev.mathops.db.logic.mathplan.majors.MajorsCurrent;
 import dev.mathops.db.logic.mathplan.types.EMajorTrack;
-import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.schema.legacy.RawStmathplan;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.impl.RawStmathplanLogic;
+import dev.mathops.db.schema.legacy.rec.RawStmathplan;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.Page;

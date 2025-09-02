@@ -2,10 +2,10 @@ package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.schema.legacy.RawCampusCalendar;
-import dev.mathops.db.schema.legacy.RawMilestone;
-import dev.mathops.db.schema.legacy.RawStmilestone;
-import dev.mathops.db.rec.TermWeekRec;
+import dev.mathops.db.schema.legacy.rec.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.rec.RawMilestone;
+import dev.mathops.db.schema.legacy.rec.RawStmilestone;
+import dev.mathops.db.schema.term.rec.TermWeekRec;
 
 import java.sql.SQLException;
 import java.time.LocalDate;

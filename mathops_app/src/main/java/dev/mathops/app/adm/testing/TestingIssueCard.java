@@ -12,12 +12,12 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.schema.ESchema;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.challenge.ChallengeExamLogic;
-import dev.mathops.db.schema.legacy.RawExam;
-import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.rec.RawExam;
+import dev.mathops.db.schema.legacy.rec.RawStexam;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 

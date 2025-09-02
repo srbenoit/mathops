@@ -5,7 +5,7 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawStmsgLogic;
+import dev.mathops.db.schema.legacy.impl.RawStmsgLogic;
 import dev.mathops.app.ops.snapin.AbstractFullPanel;
 import dev.mathops.app.ops.snapin.messaging.epf.EPFScanWorker;
 import dev.mathops.app.ops.snapin.messaging.tosend.CanvasMessageSenders;

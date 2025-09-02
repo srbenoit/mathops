@@ -12,7 +12,7 @@ import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Contexts;
 import dev.mathops.text.parser.ParsingException;
 import dev.mathops.text.parser.xml.XmlContent;
 

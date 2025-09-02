@@ -2,11 +2,11 @@ package dev.mathops.web.host.precalc.course;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.PaceTrackLogic;
-import dev.mathops.db.schema.legacy.RawCampusCalendar;
-import dev.mathops.db.schema.legacy.RawCourse;
-import dev.mathops.db.schema.legacy.RawMilestone;
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.legacy.rec.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.rec.RawCourse;
+import dev.mathops.db.schema.legacy.rec.RawMilestone;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;
 import dev.mathops.session.sitelogic.data.SiteDataCfgCourse;

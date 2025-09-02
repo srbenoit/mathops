@@ -4,11 +4,11 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Contexts;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.old.rawlogic.RawLoginsLogic;
-import dev.mathops.db.schema.legacy.RawLogins;
+import dev.mathops.db.schema.legacy.impl.RawLoginsLogic;
+import dev.mathops.db.schema.legacy.rec.RawLogins;
 import dev.mathops.text.parser.Base64;
 import dev.mathops.text.parser.ParsingException;
 

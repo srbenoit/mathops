@@ -1,6 +1,6 @@
 package dev.mathops.web.websocket.help.livehelp;
 
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.websocket.help.StudentKey;
 

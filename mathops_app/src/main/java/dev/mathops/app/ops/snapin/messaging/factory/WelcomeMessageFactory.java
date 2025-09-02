@@ -1,7 +1,7 @@
 package dev.mathops.app.ops.snapin.messaging.factory;
 
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;

@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Contexts;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.logic.SystemData;
@@ -14,17 +14,17 @@ import dev.mathops.db.logic.placement.PlacementStatus;
 import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
 import dev.mathops.db.logic.tutorial.PrecalcTutorialLogic;
 import dev.mathops.db.logic.tutorial.PrecalcTutorialStatus;
-import dev.mathops.db.old.logic.HoldsStatus;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawExam;
-import dev.mathops.db.schema.legacy.RawSpecialStus;
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.schema.legacy.RawStudent;
-import dev.mathops.db.rec.TermRec;
 import dev.mathops.db.schema.RawRecordConstants;
+import dev.mathops.db.schema.legacy.impl.RawAdminHoldLogic;
+import dev.mathops.db.schema.legacy.impl.RawSpecialStusLogic;
+import dev.mathops.db.schema.legacy.impl.RawStcourseLogic;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawExam;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
@@ -587,7 +587,8 @@ public final class MPSEndpoint {
         final List<ExamEntry> tutorialExams = new ArrayList<>(10);
 
         final ZonedDateTime now = loginSession.getNow();
-        final ELMTutorialStatus elm = ELMTutorialStatus.of(cache, studentId, now, HoldsStatus.of(cache, studentId));
+        final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, studentId);
+        final ELMTutorialStatus elm = ELMTutorialStatus.of(cache, studentId, now, holds);
         if (elm.eligibleForElmExam) {
             tutorialExams.add(new ExamEntry("MT4UE", "ELM Exam", null));
         }

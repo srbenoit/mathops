@@ -1,12 +1,12 @@
 package dev.mathops.session.sitelogic.standards;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCustdLogic;
-import dev.mathops.db.old.rawlogic.RawStdLogic;
-import dev.mathops.db.old.rawlogic.RawStstdLogic;
-import dev.mathops.db.schema.legacy.RawCustd;
-import dev.mathops.db.schema.legacy.RawStd;
-import dev.mathops.db.schema.legacy.RawStstd;
+import dev.mathops.db.schema.legacy.impl.RawCustdLogic;
+import dev.mathops.db.schema.legacy.impl.RawStdLogic;
+import dev.mathops.db.schema.legacy.impl.RawStstdLogic;
+import dev.mathops.db.schema.legacy.rec.RawCustd;
+import dev.mathops.db.schema.legacy.rec.RawStd;
+import dev.mathops.db.schema.legacy.rec.RawStstd;
 
 import java.util.ArrayList;
 import java.util.Collection;

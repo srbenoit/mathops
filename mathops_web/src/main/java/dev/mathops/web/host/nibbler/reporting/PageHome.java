@@ -1,9 +1,9 @@
 package dev.mathops.web.host.nibbler.reporting;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.enums.ERole;
-import dev.mathops.db.rec.ReportPermsRec;
-import dev.mathops.db.reclogic.ReportPermsLogic;
+import dev.mathops.db.field.ERole;
+import dev.mathops.db.schema.main.impl.ReportPermsLogic;
+import dev.mathops.db.schema.system.rec.ReportPermsRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

@@ -5,8 +5,8 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.main.FacilityRec;
-import dev.mathops.db.reclogic.main.FacilityLogic;
+import dev.mathops.db.schema.main.impl.FacilityLogic;
+import dev.mathops.db.schema.main.rec.FacilityRec;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;

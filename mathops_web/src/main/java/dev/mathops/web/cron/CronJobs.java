@@ -1,6 +1,6 @@
 package dev.mathops.web.cron;
 
-import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
 import dev.mathops.dbjobs.batch.BulkUpdateMPLTestScores;
 import dev.mathops.dbjobs.batch.daily.*;
 import dev.mathops.dbjobs.report.cron.PrecalcProgressReport;

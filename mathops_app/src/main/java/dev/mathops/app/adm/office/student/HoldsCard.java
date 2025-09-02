@@ -8,11 +8,11 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.ESchema;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawHoldType;
-import dev.mathops.db.schema.legacy.RawUserClearance;
+import dev.mathops.db.schema.ESchema;
+import dev.mathops.db.schema.legacy.impl.RawAdminHoldLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawHoldType;
+import dev.mathops.db.schema.legacy.rec.RawUserClearance;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

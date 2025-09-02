@@ -7,7 +7,7 @@ import dev.mathops.commons.installation.Installation;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
-import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Contexts;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.session.SessionManager;

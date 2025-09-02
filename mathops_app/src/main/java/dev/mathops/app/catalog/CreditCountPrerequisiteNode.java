@@ -1,6 +1,6 @@
 package dev.mathops.app.catalog;
 
-import dev.mathops.db.type.CatalogCourseNumber;
+import dev.mathops.db.field.CatalogCourseNumber;
 
 import java.util.Arrays;
 import java.util.List;

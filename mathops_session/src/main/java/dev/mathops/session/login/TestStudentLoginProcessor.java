@@ -2,10 +2,10 @@ package dev.mathops.session.login;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.db.logic.ELiveRefreshes;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.session.LiveSessionInfo;
 
 import java.sql.SQLException;

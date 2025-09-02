@@ -3,11 +3,11 @@ package dev.mathops.session.sitelogic.servlet;
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawCsection;
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.schema.legacy.RawSthomework;
+import dev.mathops.db.schema.legacy.impl.RawSthomeworkLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawCsection;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.legacy.rec.RawSthomework;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;

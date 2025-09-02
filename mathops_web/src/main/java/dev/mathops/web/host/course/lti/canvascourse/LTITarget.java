@@ -2,10 +2,7 @@ package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.term.LtiContextCourseSectionRec;
-import dev.mathops.db.rec.term.LtiContextRec;
-import dev.mathops.db.reclogic.term.LtiContextCourseSectionLogic;
-import dev.mathops.db.reclogic.term.LtiContextLogic;
+import dev.mathops.db.schema.term.rec.LtiContextCourseSectionRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.text.parser.xml.XmlEscaper;
@@ -19,7 +16,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Enumeration;
-import java.util.List;
 
 /**
  * A dispatcher class that examines the payload of a validate launch callback to determine the page to generate, then

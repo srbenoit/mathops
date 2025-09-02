@@ -1,12 +1,10 @@
 package dev.mathops.web.host.course.lti.manage;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.main.LtiRegistrationRec;
-import dev.mathops.db.rec.term.LtiContextCourseSectionRec;
-import dev.mathops.db.rec.term.LtiContextRec;
-import dev.mathops.db.reclogic.main.LtiRegistrationLogic;
-import dev.mathops.db.reclogic.term.LtiContextCourseSectionLogic;
-import dev.mathops.db.reclogic.term.LtiContextLogic;
+import dev.mathops.db.schema.term.impl.LtiContextCourseSectionLogic;
+import dev.mathops.db.schema.term.impl.LtiContextLogic;
+import dev.mathops.db.schema.term.rec.LtiContextCourseSectionRec;
+import dev.mathops.db.schema.term.rec.LtiContextRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.host.course.lti.LtiSite;

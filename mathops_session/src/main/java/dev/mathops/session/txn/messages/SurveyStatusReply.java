@@ -2,10 +2,10 @@ package dev.mathops.session.txn.messages;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.TemporalUtils;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.schema.legacy.RawStsurveyqa;
-import dev.mathops.db.schema.legacy.RawSurveyqa;
+import dev.mathops.db.field.TermKey;
+import dev.mathops.db.field.ETermName;
+import dev.mathops.db.schema.legacy.rec.RawStsurveyqa;
+import dev.mathops.db.schema.legacy.rec.RawSurveyqa;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.LocalDateTime;

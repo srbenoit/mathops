@@ -2,7 +2,7 @@ package dev.mathops.app.adm.office.placement;
 
 import dev.mathops.app.adm.AbstractAdmTable;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.schema.legacy.RawStmpe;
+import dev.mathops.db.schema.legacy.rec.RawStmpe;
 
 import java.io.Serial;
 import java.time.LocalDateTime;

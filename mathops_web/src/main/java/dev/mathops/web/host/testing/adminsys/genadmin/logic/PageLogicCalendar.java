@@ -2,7 +2,7 @@ package dev.mathops.web.host.testing.adminsys.genadmin.logic;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.logic.TermCalendarLogic;
+import dev.mathops.db.logic.TermCalendarLogic;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

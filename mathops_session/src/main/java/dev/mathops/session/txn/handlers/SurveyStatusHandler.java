@@ -4,7 +4,7 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.rawlogic.RawStsurveyqaLogic;
+import dev.mathops.db.schema.legacy.impl.RawStsurveyqaLogic;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 import dev.mathops.session.txn.messages.SurveyStatusReply;
 import dev.mathops.session.txn.messages.SurveyStatusRequest;

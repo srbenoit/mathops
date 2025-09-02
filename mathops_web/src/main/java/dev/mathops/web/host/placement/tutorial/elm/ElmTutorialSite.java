@@ -9,7 +9,8 @@ import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Site;
 import dev.mathops.db.logic.ELiveRefreshes;
 import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
-import dev.mathops.db.old.logic.HoldsStatus;
+import dev.mathops.db.schema.legacy.impl.RawAdminHoldLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
 import dev.mathops.session.ISessionManager;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
@@ -25,6 +26,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * A course site for "placement.math.colostate.edu/elm-tutorial".
@@ -37,8 +39,8 @@ public final class ElmTutorialSite extends AbstractPageSite {
     /**
      * Constructs a new {@code ElmCourseSite}.
      *
-     * @param theSite the website profile
-     * @param theSessions    the singleton user session repository
+     * @param theSite     the website profile
+     * @param theSessions the singleton user session repository
      */
     public ElmTutorialSite(final Site theSite, final ISessionManager theSessions) {
 
@@ -60,11 +62,11 @@ public final class ElmTutorialSite extends AbstractPageSite {
      * Processes a GET request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type the site type
-     * @param req      the request
-     * @param resp     the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
@@ -110,8 +112,9 @@ public final class ElmTutorialSite extends AbstractPageSite {
 
                         LogBase.setSessionInfo(session.loginSessionId, studentId);
 
+                        final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, studentId);
                         final ELMTutorialStatus status = ELMTutorialStatus.of(cache, studentId, session.getNow(),
-                                HoldsStatus.of(cache, studentId));
+                                holds);
 
                         switch (subpath) {
                             case "secure/shibboleth.html" -> doShibbolethLogin(cache, req, resp, session, "home.html");
@@ -174,11 +177,11 @@ public final class ElmTutorialSite extends AbstractPageSite {
      * Processes a POST request. Before this method is called, the request will have been verified to be secure and have
      * a session ID.
      *
-     * @param cache    the data cache
-     * @param subpath  the portion of the path beyond that which was used to select this site
-     * @param type the site type
-     * @param req      the request
-     * @param resp     the response
+     * @param cache   the data cache
+     * @param subpath the portion of the path beyond that which was used to select this site
+     * @param type    the site type
+     * @param req     the request
+     * @param resp    the response
      * @throws IOException  if there is an error writing the response
      * @throws SQLException if there is an error accessing the database
      */
@@ -202,8 +205,9 @@ public final class ElmTutorialSite extends AbstractPageSite {
 
                     LogBase.setSessionInfo(session.loginSessionId, studentId);
 
+                    final List<RawAdminHold> holds = RawAdminHoldLogic.queryByStudent(cache, studentId);
                     final ELMTutorialStatus status = ELMTutorialStatus.of(cache, studentId,
-                            session.getNow(), HoldsStatus.of(cache, studentId));
+                            session.getNow(), holds);
 
                     switch (subpath) {
                         case "rolecontrol.html" -> processRoleControls(cache, req, resp, session);

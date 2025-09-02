@@ -1,6 +1,6 @@
 package dev.mathops.session.login;
 
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 
 /**
  * A container for the data involved in a login attempt using the CSU eID login processor. This data is stored in a

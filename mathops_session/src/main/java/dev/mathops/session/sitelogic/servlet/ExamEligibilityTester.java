@@ -2,12 +2,12 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawCsection;
-import dev.mathops.db.schema.legacy.RawSpecialStus;
-import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.impl.RawSpecialStusLogic;
+import dev.mathops.db.schema.legacy.impl.RawStexamLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawCsection;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
+import dev.mathops.db.schema.legacy.rec.RawStexam;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.txn.messages.AvailableExam;
 import dev.mathops.text.builder.HtmlBuilder;

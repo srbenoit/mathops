@@ -1,11 +1,11 @@
 package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.main.LtiRegistrationRec;
-import dev.mathops.db.rec.term.LtiContextCourseSectionRec;
-import dev.mathops.db.rec.term.LtiContextRec;
-import dev.mathops.db.reclogic.term.LtiContextCourseSectionLogic;
-import dev.mathops.db.reclogic.term.LtiContextLogic;
+import dev.mathops.db.schema.main.rec.LtiRegistrationRec;
+import dev.mathops.db.schema.term.impl.LtiContextCourseSectionLogic;
+import dev.mathops.db.schema.term.impl.LtiContextLogic;
+import dev.mathops.db.schema.term.rec.LtiContextCourseSectionRec;
+import dev.mathops.db.schema.term.rec.LtiContextRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.web.host.course.lti.LtiSite;

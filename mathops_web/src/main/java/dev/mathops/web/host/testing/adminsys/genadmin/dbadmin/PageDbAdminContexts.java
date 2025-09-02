@@ -1,14 +1,14 @@
 package dev.mathops.web.host.testing.adminsys.genadmin.dbadmin;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.schema.ESchema;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Facet;
 import dev.mathops.db.cfg.Profile;
 import dev.mathops.db.cfg.Server;
 import dev.mathops.db.cfg.Site;
-import dev.mathops.db.old.rawlogic.LogicUtils;
+import dev.mathops.db.schema.LogicUtils;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

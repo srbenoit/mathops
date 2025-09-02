@@ -8,8 +8,8 @@ import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawStexamLogic;
-import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.impl.RawStexamLogic;
+import dev.mathops.db.schema.legacy.rec.RawStexam;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;

@@ -3,7 +3,7 @@ package dev.mathops.app.adm.office.registration;
 import dev.mathops.app.adm.AbstractZTable;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.schema.legacy.RawStqa;
+import dev.mathops.db.schema.legacy.rec.RawStqa;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;

@@ -11,10 +11,10 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawMilestoneAppealLogic;
-import dev.mathops.db.old.rawlogic.RawPaceAppealsLogic;
-import dev.mathops.db.schema.legacy.RawMilestoneAppeal;
-import dev.mathops.db.schema.legacy.RawPaceAppeals;
+import dev.mathops.db.schema.legacy.impl.RawMilestoneAppealLogic;
+import dev.mathops.db.schema.legacy.impl.RawPaceAppealsLogic;
+import dev.mathops.db.schema.legacy.rec.RawMilestoneAppeal;
+import dev.mathops.db.schema.legacy.rec.RawPaceAppeals;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;

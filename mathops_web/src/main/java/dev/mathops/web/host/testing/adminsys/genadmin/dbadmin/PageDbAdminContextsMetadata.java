@@ -3,7 +3,7 @@ package dev.mathops.web.host.testing.adminsys.genadmin.dbadmin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.EDbProduct;
+import dev.mathops.db.cfg.EDbProduct;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.session.ImmutableSessionInfo;

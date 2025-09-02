@@ -1,7 +1,7 @@
 package dev.mathops.session.txn;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.Contexts;
+import dev.mathops.db.cfg.Contexts;
 import dev.mathops.session.SessionCache;
 import dev.mathops.session.SessionManager;
 

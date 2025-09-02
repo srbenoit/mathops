@@ -2,7 +2,7 @@ package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.main.LtiRegistrationRec;
+import dev.mathops.db.schema.main.rec.LtiRegistrationRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.text.internet.RFC7518;
 import dev.mathops.text.internet.RFC8017PublicKey;

@@ -1,8 +1,8 @@
 package dev.mathops.app.ops.snapin.messaging;
 
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.schema.legacy.RawStmsg;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.legacy.rec.RawStmsg;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.text.builder.HtmlBuilder;
 

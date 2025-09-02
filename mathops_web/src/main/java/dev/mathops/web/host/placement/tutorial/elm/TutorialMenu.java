@@ -1,10 +1,10 @@
 package dev.mathops.web.host.placement.tutorial.elm;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.db.logic.tutorial.ELMTutorialStatus;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.impl.RawSpecialStusLogic;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 

@@ -2,11 +2,11 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.cfg.Profile;
-import dev.mathops.db.schema.legacy.RawCuobjective;
-import dev.mathops.db.schema.legacy.RawLesson;
-import dev.mathops.db.schema.legacy.RawLessonComponent;
-import dev.mathops.db.rec.TermRec;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.schema.legacy.rec.RawCuobjective;
+import dev.mathops.db.schema.legacy.rec.RawLesson;
+import dev.mathops.db.schema.legacy.rec.RawLessonComponent;
+import dev.mathops.db.schema.main.rec.TermRec;
+import dev.mathops.db.field.TermKey;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

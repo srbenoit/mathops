@@ -3,7 +3,7 @@ package dev.mathops.web.host.precalc.course;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.schema.legacy.RawStcourse;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.sitelogic.CourseSiteLogic;

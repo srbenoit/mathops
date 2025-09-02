@@ -1,6 +1,6 @@
 package dev.mathops.session;
 
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;

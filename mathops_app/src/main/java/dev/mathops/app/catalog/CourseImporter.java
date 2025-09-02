@@ -2,10 +2,10 @@ package dev.mathops.app.catalog;
 
 import dev.mathops.commons.ESuccessFailure;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.EGradeMode;
-import dev.mathops.db.enums.EOfferingTermName;
-import dev.mathops.db.rec.CatalogCourseRec;
-import dev.mathops.db.type.CatalogCourseNumber;
+import dev.mathops.db.field.EGradeMode;
+import dev.mathops.db.field.EOfferingTermName;
+import dev.mathops.db.schema.main.rec.CatalogCourseRec;
+import dev.mathops.db.field.CatalogCourseNumber;
 import dev.mathops.text.parser.xml.XmlEscaper;
 
 import javax.net.ssl.HttpsURLConnection;

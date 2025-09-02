@@ -3,7 +3,7 @@ package dev.mathops.web.host.testing.adminsys.proctor;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.log.LogBase;
 import dev.mathops.db.Cache;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.web.host.testing.adminsys.AbstractSubsite;
 import dev.mathops.web.host.testing.adminsys.AdminSite;

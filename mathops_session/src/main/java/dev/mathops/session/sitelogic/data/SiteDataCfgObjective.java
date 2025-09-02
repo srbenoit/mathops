@@ -1,8 +1,8 @@
 package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.schema.legacy.RawCuobjective;
-import dev.mathops.db.rec.AssignmentRec;
+import dev.mathops.db.schema.legacy.rec.RawCuobjective;
+import dev.mathops.db.schema.main.rec.AssignmentRec;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

@@ -3,8 +3,8 @@ package dev.mathops.web.host.testing.webservice;
 import dev.mathops.commons.HexEncoder;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.impl.RawClientPcLogic;
+import dev.mathops.db.schema.legacy.rec.RawClientPc;
 import dev.mathops.session.scramsha256.UserCredentials;
 
 import jakarta.servlet.ServletRequest;

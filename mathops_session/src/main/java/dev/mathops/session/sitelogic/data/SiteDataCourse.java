@@ -3,10 +3,10 @@ package dev.mathops.session.sitelogic.data;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.schema.legacy.RawCuobjective;
-import dev.mathops.db.schema.legacy.RawCusection;
-import dev.mathops.db.schema.legacy.RawPacingStructure;
+import dev.mathops.db.field.TermKey;
+import dev.mathops.db.schema.legacy.rec.RawCuobjective;
+import dev.mathops.db.schema.legacy.rec.RawCusection;
+import dev.mathops.db.schema.legacy.rec.RawPacingStructure;
 
 import java.sql.SQLException;
 import java.util.List;

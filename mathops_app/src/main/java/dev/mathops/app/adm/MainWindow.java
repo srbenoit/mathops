@@ -7,7 +7,7 @@ import dev.mathops.app.adm.resource.TopPanelResource;
 import dev.mathops.app.adm.testing.TopPanelTesting;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.schema.ESchema;
 import dev.mathops.db.cfg.Data;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Profile;

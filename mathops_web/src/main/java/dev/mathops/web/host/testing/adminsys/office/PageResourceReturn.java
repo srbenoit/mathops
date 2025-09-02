@@ -2,10 +2,10 @@ package dev.mathops.web.host.testing.adminsys.office;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawResourceLogic;
-import dev.mathops.db.old.rawlogic.RawStresourceLogic;
-import dev.mathops.db.schema.legacy.RawResource;
-import dev.mathops.db.schema.legacy.RawStresource;
+import dev.mathops.db.schema.legacy.impl.RawResourceLogic;
+import dev.mathops.db.schema.legacy.impl.RawStresourceLogic;
+import dev.mathops.db.schema.legacy.rec.RawResource;
+import dev.mathops.db.schema.legacy.rec.RawStresource;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;

@@ -2,8 +2,8 @@ package dev.mathops.web.host.testing.adminsys.genadmin.reports;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawSthomeworkLogic;
-import dev.mathops.db.schema.legacy.RawSthomework;
+import dev.mathops.db.schema.legacy.impl.RawSthomeworkLogic;
+import dev.mathops.db.schema.legacy.rec.RawSthomework;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;

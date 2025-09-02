@@ -1,7 +1,7 @@
 package dev.mathops.web.host.course.help;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.text.builder.HtmlBuilder;

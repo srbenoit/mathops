@@ -9,11 +9,11 @@ import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.mathplan.MathPlanLogic;
 import dev.mathops.db.logic.mathplan.types.EMathPlanStatus;
-import dev.mathops.db.old.rawlogic.RawStmathplanLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawStmathplan;
-import dev.mathops.db.schema.legacy.RawStmpe;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.impl.RawStmathplanLogic;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawStmathplan;
+import dev.mathops.db.schema.legacy.rec.RawStmpe;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.text.builder.SimpleBuilder;
 
 import javax.swing.BorderFactory;

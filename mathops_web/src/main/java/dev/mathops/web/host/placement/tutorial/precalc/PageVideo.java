@@ -5,7 +5,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawStcuobjectiveLogic;
+import dev.mathops.db.schema.legacy.impl.RawStcuobjectiveLogic;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;

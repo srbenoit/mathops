@@ -8,9 +8,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawFfrTrnsLogic;
-import dev.mathops.db.schema.legacy.RawCampusCalendar;
-import dev.mathops.db.schema.legacy.RawFfrTrns;
+import dev.mathops.db.schema.legacy.impl.RawFfrTrnsLogic;
+import dev.mathops.db.schema.legacy.rec.RawCampusCalendar;
+import dev.mathops.db.schema.legacy.rec.RawFfrTrns;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

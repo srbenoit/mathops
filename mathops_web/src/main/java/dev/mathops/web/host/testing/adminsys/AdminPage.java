@@ -1,7 +1,7 @@
 package dev.mathops.web.host.testing.adminsys;
 
-import dev.mathops.db.enums.ERole;
-import dev.mathops.db.schema.legacy.RawWhichDb;
+import dev.mathops.db.field.ERole;
+import dev.mathops.db.schema.legacy.rec.RawWhichDb;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 

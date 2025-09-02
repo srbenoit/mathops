@@ -4,7 +4,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.rec.RawClientPc;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;

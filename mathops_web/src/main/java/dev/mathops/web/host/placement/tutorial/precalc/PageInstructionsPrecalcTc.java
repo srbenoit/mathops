@@ -2,8 +2,8 @@ package dev.mathops.web.host.placement.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractPageSite;

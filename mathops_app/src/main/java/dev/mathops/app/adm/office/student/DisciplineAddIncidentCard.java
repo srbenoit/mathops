@@ -3,9 +3,9 @@ package dev.mathops.app.adm.office.student;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.EDisciplineActionType;
-import dev.mathops.db.enums.EDisciplineIncidentType;
-import dev.mathops.db.schema.legacy.RawDiscipline;
+import dev.mathops.db.field.EDisciplineActionType;
+import dev.mathops.db.field.EDisciplineIncidentType;
+import dev.mathops.db.schema.legacy.rec.RawDiscipline;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

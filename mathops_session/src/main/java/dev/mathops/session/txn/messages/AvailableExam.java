@@ -1,6 +1,6 @@
 package dev.mathops.session.txn.messages;
 
-import dev.mathops.db.schema.legacy.RawExam;
+import dev.mathops.db.schema.legacy.rec.RawExam;
 
 /**
  * An available exam.

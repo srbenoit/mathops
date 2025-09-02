@@ -1,23 +1,23 @@
 package dev.mathops.web.host.placement.tutorial.precalc;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ETermName;
+import dev.mathops.db.field.ETermName;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.PrerequisiteLogic;
 import dev.mathops.db.logic.tutorial.PrecalcTutorialLogic;
 import dev.mathops.db.logic.tutorial.PrecalcTutorialStatus;
-import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
 import dev.mathops.db.schema.RawRecordConstants;
-import dev.mathops.db.type.TermKey;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawCourse;
-import dev.mathops.db.schema.legacy.RawStmpe;
-import dev.mathops.db.schema.legacy.RawStudent;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.field.TermKey;
+import dev.mathops.db.schema.legacy.impl.RawAdminHoldLogic;
+import dev.mathops.db.schema.legacy.impl.RawSpecialStusLogic;
+import dev.mathops.db.schema.legacy.impl.RawStmpeLogic;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawCourse;
+import dev.mathops.db.schema.legacy.rec.RawStmpe;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.session.ImmutableSessionInfo;
 
 import java.sql.SQLException;

@@ -5,10 +5,10 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawCsectionLogic;
-import dev.mathops.db.schema.legacy.RawCsection;
-import dev.mathops.db.reclogic.TermLogic;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.legacy.impl.RawCsectionLogic;
+import dev.mathops.db.schema.legacy.rec.RawCsection;
+import dev.mathops.db.schema.main.impl.TermLogic;
+import dev.mathops.db.schema.main.rec.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

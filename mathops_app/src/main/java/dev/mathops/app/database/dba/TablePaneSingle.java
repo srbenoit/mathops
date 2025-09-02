@@ -2,8 +2,8 @@ package dev.mathops.app.database.dba;
 
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.EDbUse;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.cfg.EDbUse;
+import dev.mathops.db.schema.ESchema;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.DatabaseConfig;
 import dev.mathops.db.cfg.Server;

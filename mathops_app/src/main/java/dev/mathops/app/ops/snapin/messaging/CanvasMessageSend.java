@@ -2,8 +2,8 @@ package dev.mathops.app.ops.snapin.messaging;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawStudentLogic;
-import dev.mathops.db.schema.legacy.RawStudent;
+import dev.mathops.db.schema.legacy.impl.RawStudentLogic;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
 import dev.mathops.app.canvas.ApiResult;
 import dev.mathops.app.canvas.CanvasApi;
 import dev.mathops.app.canvas.data.UserInfo;

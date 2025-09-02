@@ -2,8 +2,8 @@ package dev.mathops.web.host.placement.placement;
 
 import dev.mathops.commons.TemporalUtils;
 import dev.mathops.db.Cache;
-import dev.mathops.db.schema.legacy.RawCampusCalendar;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.legacy.rec.RawCampusCalendar;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractPageSite;
 import dev.mathops.web.site.AbstractSite;

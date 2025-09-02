@@ -1,8 +1,8 @@
 package dev.mathops.app.adm;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawUserClearanceLogic;
-import dev.mathops.db.schema.legacy.RawUserClearance;
+import dev.mathops.db.schema.legacy.impl.RawUserClearanceLogic;
+import dev.mathops.db.schema.legacy.rec.RawUserClearance;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -4,7 +4,7 @@ import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.EDbUse;
+import dev.mathops.db.cfg.EDbUse;
 import dev.mathops.db.cfg.Data;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.Login;

@@ -4,7 +4,7 @@ import dev.mathops.app.adm.AdmPanelBase;
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.schema.legacy.RawCourse;
+import dev.mathops.db.schema.legacy.rec.RawCourse;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;

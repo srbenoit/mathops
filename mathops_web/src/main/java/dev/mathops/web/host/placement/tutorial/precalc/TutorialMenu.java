@@ -1,6 +1,6 @@
 package dev.mathops.web.host.placement.tutorial.precalc;
 
-import dev.mathops.db.schema.legacy.RawCourse;
+import dev.mathops.db.schema.legacy.rec.RawCourse;
 import dev.mathops.db.schema.RawRecordConstants;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;

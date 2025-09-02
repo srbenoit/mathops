@@ -2,7 +2,7 @@ package dev.mathops.app.database.dbimport;
 
 import dev.mathops.commons.ui.UIUtilities;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.EDbUse;
+import dev.mathops.db.cfg.EDbUse;
 import dev.mathops.db.cfg.Database;
 import dev.mathops.db.cfg.Login;
 import dev.mathops.db.cfg.Server;

@@ -2,8 +2,8 @@ package dev.mathops.app.ops.snapin.messaging.factory;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawStmpeLogic;
-import dev.mathops.db.schema.legacy.RawStmpe;
+import dev.mathops.db.schema.legacy.impl.RawStmpeLogic;
+import dev.mathops.db.schema.legacy.rec.RawStmpe;
 import dev.mathops.app.ops.snapin.messaging.EMilestone;
 import dev.mathops.app.ops.snapin.messaging.EMsg;
 import dev.mathops.app.ops.snapin.messaging.MessagingContext;

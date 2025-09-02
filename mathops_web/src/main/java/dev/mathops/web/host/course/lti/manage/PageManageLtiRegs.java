@@ -1,8 +1,8 @@
 package dev.mathops.web.host.course.lti.manage;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.main.LtiRegistrationRec;
-import dev.mathops.db.reclogic.main.LtiRegistrationLogic;
+import dev.mathops.db.schema.main.impl.LtiRegistrationLogic;
+import dev.mathops.db.schema.main.rec.LtiRegistrationRec;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.host.course.lti.LtiSite;

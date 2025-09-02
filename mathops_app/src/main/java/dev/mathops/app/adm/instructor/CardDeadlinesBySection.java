@@ -6,10 +6,10 @@ import dev.mathops.app.adm.UserData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawMilestoneLogic;
-import dev.mathops.db.schema.legacy.RawMilestone;
-import dev.mathops.db.reclogic.TermLogic;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.legacy.impl.RawMilestoneLogic;
+import dev.mathops.db.schema.legacy.rec.RawMilestone;
+import dev.mathops.db.schema.main.impl.TermLogic;
+import dev.mathops.db.schema.main.rec.TermRec;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

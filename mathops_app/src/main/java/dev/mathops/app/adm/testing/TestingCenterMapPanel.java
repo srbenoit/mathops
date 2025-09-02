@@ -2,7 +2,7 @@ package dev.mathops.app.adm.testing;
 
 import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.rec.RawClientPc;
 
 import javax.swing.JPanel;
 import java.awt.Color;

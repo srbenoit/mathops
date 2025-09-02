@@ -1,7 +1,7 @@
 package dev.mathops.session;
 
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.time.Instant;

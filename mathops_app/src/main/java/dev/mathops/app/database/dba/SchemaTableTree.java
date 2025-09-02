@@ -1,7 +1,7 @@
 package dev.mathops.app.database.dba;
 
 import dev.mathops.commons.ui.layout.StackedBorderLayout;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.schema.ESchema;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;

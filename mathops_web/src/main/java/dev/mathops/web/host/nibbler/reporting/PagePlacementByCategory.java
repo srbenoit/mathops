@@ -2,8 +2,8 @@ package dev.mathops.web.host.nibbler.reporting;
 
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.old.rawlogic.RawSpecialStusLogic;
-import dev.mathops.db.schema.legacy.RawSpecialStus;
+import dev.mathops.db.schema.legacy.impl.RawSpecialStusLogic;
+import dev.mathops.db.schema.legacy.rec.RawSpecialStus;
 import dev.mathops.dbjobs.report.ESortOrder;
 import dev.mathops.dbjobs.report.HtmlCsvPlacementReport;
 import dev.mathops.session.ImmutableSessionInfo;

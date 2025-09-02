@@ -1,7 +1,7 @@
 package dev.mathops.web.host.course.lti.canvascourse;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.rec.term.LtiContextRec;
+import dev.mathops.db.schema.term.rec.LtiContextRec;
 import dev.mathops.text.parser.json.JSONObject;
 import dev.mathops.web.host.course.lti.LtiSite;
 import jakarta.servlet.ServletRequest;

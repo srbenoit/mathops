@@ -2,9 +2,9 @@ package dev.mathops.session.sitelogic.data;
 
 import dev.mathops.db.logic.SystemData;
 import dev.mathops.db.Cache;
-import dev.mathops.db.schema.legacy.RawCunit;
-import dev.mathops.db.schema.legacy.RawCusection;
-import dev.mathops.db.schema.legacy.RawExam;
+import dev.mathops.db.schema.legacy.rec.RawCunit;
+import dev.mathops.db.schema.legacy.rec.RawCusection;
+import dev.mathops.db.schema.legacy.rec.RawExam;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

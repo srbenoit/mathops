@@ -4,7 +4,7 @@ import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.installation.EPath;
 import dev.mathops.commons.installation.PathList;
 import dev.mathops.commons.log.Log;
-import dev.mathops.db.enums.ERole;
+import dev.mathops.db.field.ERole;
 import dev.mathops.session.login.LocalLoginProcessor;
 import dev.mathops.text.builder.HtmlBuilder;
 

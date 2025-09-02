@@ -3,7 +3,7 @@ package dev.mathops.app.adm.office.registration;
 import dev.mathops.app.adm.AbstractZTable;
 import dev.mathops.app.adm.IZTableCommandListener;
 import dev.mathops.commons.CoreConstants;
-import dev.mathops.db.schema.legacy.RawStexam;
+import dev.mathops.db.schema.legacy.rec.RawStexam;
 
 import java.io.Serial;
 import java.time.Duration;

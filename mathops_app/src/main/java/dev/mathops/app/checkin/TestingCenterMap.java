@@ -2,7 +2,7 @@ package dev.mathops.app.checkin;
 
 import dev.mathops.commons.file.FileLoader;
 import dev.mathops.commons.ui.ColorNames;
-import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.rec.RawClientPc;
 import dev.mathops.font.BundledFontManager;
 
 import java.awt.Color;

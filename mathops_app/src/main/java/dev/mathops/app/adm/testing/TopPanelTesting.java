@@ -8,9 +8,9 @@ import dev.mathops.commons.TemporalUtils;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.schema.ESchema;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.schema.legacy.RawClientPc;
+import dev.mathops.db.schema.legacy.rec.RawClientPc;
 import dev.mathops.session.scramsha256.ScramClientStub;
 import dev.mathops.text.builder.SimpleBuilder;
 

@@ -1,8 +1,8 @@
 package dev.mathops.web.host.precalc.landing;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.enums.ETermName;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.field.ETermName;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.ESiteType;

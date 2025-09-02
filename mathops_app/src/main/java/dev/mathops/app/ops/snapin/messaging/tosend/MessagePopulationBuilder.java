@@ -3,9 +3,9 @@ package dev.mathops.app.ops.snapin.messaging.tosend;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.PaceTrackLogic;
-import dev.mathops.db.old.rawlogic.RawStcourseLogic;
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.legacy.impl.RawStcourseLogic;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.db.schema.RawRecordConstants;
 
 import java.sql.SQLException;

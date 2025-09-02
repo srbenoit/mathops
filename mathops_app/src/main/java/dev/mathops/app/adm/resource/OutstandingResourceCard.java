@@ -5,7 +5,7 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.db.Cache;
 import dev.mathops.db.DbConnection;
-import dev.mathops.db.ESchema;
+import dev.mathops.db.schema.ESchema;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;

@@ -2,12 +2,12 @@ package dev.mathops.session.sitelogic.servlet;
 
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.course.ResolvedStandardMilestones;
-import dev.mathops.db.old.rawlogic.RawAdminHoldLogic;
-import dev.mathops.db.schema.legacy.RawAdminHold;
-import dev.mathops.db.schema.legacy.RawStcourse;
-import dev.mathops.db.schema.legacy.RawStudent;
-import dev.mathops.db.rec.StuUnitMasteryRec;
-import dev.mathops.db.reclogic.StuUnitMasteryLogic;
+import dev.mathops.db.schema.legacy.impl.RawAdminHoldLogic;
+import dev.mathops.db.schema.legacy.rec.RawAdminHold;
+import dev.mathops.db.schema.legacy.rec.RawStcourse;
+import dev.mathops.db.schema.legacy.rec.RawStudent;
+import dev.mathops.db.schema.main.impl.StuUnitMasteryLogic;
+import dev.mathops.db.schema.term.rec.StuUnitMasteryRec;
 import dev.mathops.text.builder.HtmlBuilder;
 
 import java.sql.SQLException;

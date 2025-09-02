@@ -3,7 +3,7 @@ package dev.mathops.web.host.placement.placement;
 import dev.mathops.commons.CoreConstants;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.type.TermKey;
+import dev.mathops.db.field.TermKey;
 import dev.mathops.session.ImmutableSessionInfo;
 import dev.mathops.session.SessionManager;
 import dev.mathops.session.SessionResult;

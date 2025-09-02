@@ -1,8 +1,8 @@
 package dev.mathops.web.host.placement.tutorial.elm;
 
 import dev.mathops.db.Cache;
-import dev.mathops.db.schema.legacy.RawCampusCalendar;
-import dev.mathops.db.rec.TermRec;
+import dev.mathops.db.schema.legacy.rec.RawCampusCalendar;
+import dev.mathops.db.schema.main.rec.TermRec;
 import dev.mathops.text.builder.HtmlBuilder;
 import dev.mathops.web.site.AbstractSite;
 import dev.mathops.web.site.Page;

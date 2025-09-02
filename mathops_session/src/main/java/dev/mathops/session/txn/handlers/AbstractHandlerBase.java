@@ -5,9 +5,9 @@ import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
 import dev.mathops.db.logic.StudentData;
 import dev.mathops.db.logic.SystemData;
-import dev.mathops.db.old.rawlogic.RawClientPcLogic;
-import dev.mathops.db.schema.legacy.RawClientPc;
-import dev.mathops.db.schema.legacy.RawTestingCenter;
+import dev.mathops.db.schema.legacy.impl.RawClientPcLogic;
+import dev.mathops.db.schema.legacy.rec.RawClientPc;
+import dev.mathops.db.schema.legacy.rec.RawTestingCenter;
 import dev.mathops.session.txn.messages.AbstractReplyBase;
 import dev.mathops.session.txn.messages.AbstractRequestBase;
 

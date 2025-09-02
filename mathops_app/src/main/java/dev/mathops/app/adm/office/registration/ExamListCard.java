@@ -5,9 +5,9 @@ import dev.mathops.app.adm.Skin;
 import dev.mathops.app.adm.StudentData;
 import dev.mathops.commons.log.Log;
 import dev.mathops.db.Cache;
-import dev.mathops.db.schema.legacy.RawStexam;
-import dev.mathops.db.schema.legacy.RawStqa;
-import dev.mathops.db.rec.TermWeekRec;
+import dev.mathops.db.schema.legacy.rec.RawStexam;
+import dev.mathops.db.schema.legacy.rec.RawStqa;
+import dev.mathops.db.schema.term.rec.TermWeekRec;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
