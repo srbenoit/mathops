@@ -164,9 +164,9 @@ public final class LtiSite extends AbstractSite {
                 case "index.html" -> PageIndex.showPage(req, resp);
 
                 // This is linked from the admin website
-                case "onlineproctor.htm" -> PageOnlineProctor.showPage(req, resp, null, null);
+                case "onlineproctor.html" -> PageOnlineProctor.showPage(req, resp, null, null);
                 // This is linked from the admin website
-                case "onlineproctorchallenge.htm" -> PageOnlineProctorChallenge.showPage(req, resp, null, null);
+                case "onlineproctorchallenge.html" -> PageOnlineProctorChallenge.showPage(req, resp, null, null);
 
                 case "home.html" -> PageHome.showPage(cache, this, req, resp);
                 case "challenge.html" -> PageChallenge.showPage(cache, this, req, resp);
