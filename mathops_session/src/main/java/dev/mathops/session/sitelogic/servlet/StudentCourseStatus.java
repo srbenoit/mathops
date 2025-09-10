@@ -2624,6 +2624,10 @@ public final class StudentCourseStatus extends LogicBase {
                     } else {
                         this.proctoredAvailable[unit] = true;
                     }
+                } else {
+                    // A "counted" incomplete - should use current term dates, but there might not be a current-term
+                    // "cusection" record for the original section, so we don't filter on dates.
+                    this.proctoredAvailable[unit] = true;
                 }
             } else {
                 // Only for non-Incompletes, since test dates would be from earlier term
@@ -2932,14 +2936,14 @@ public final class StudentCourseStatus extends LogicBase {
             final String sessionId = CoreConstants.newId(ISessionManager.SESSION_ID_LEN);
 
             final LiveSessionInfo live = new LiveSessionInfo(sessionId, "None", ERole.STUDENT);
-            live.setUserInfo("888888888", "Test", "Student", "Test Student");
+            live.setUserInfo("837448144", "Test", "Student", "Test Student");
 
             final Cache cache = new Cache(profile);
 
             try {
                 final ImmutableSessionInfo session = new ImmutableSessionInfo(live);
 
-                if (status.gatherData(cache, session, "888888888", RawRecordConstants.M117, false, false)) {
+                if (status.gatherData(cache, session, "837448144", RawRecordConstants.M118, false, false)) {
 
                     final SystemData systemData = cache.getSystemData();
                     final TermRec active = systemData.getActiveTerm();

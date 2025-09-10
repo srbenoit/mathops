@@ -21,6 +21,10 @@ dependencies {
     implementation(files("../../mathops_text/out/libs/mathops_text.jar"))
     implementation(files("../../mathops_db/out/libs/mathops_db.jar"))
 
+    implementation("com.ibm.informix:jdbc:4.50.10")
+    implementation("com.oracle.database.jdbc:ojdbc11:23.4.0.24.05")
+    implementation("org.postgresql:postgresql:42.7.4")
+
     compileOnly("jakarta.servlet:jakarta.servlet-api:6.1.0-M2")
     compileOnly("jakarta.websocket:jakarta.websocket-api:2.2.0")
 
