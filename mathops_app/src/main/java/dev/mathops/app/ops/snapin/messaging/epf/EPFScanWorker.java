@@ -24,8 +24,8 @@ import java.util.Map;
 public final class EPFScanWorker extends SwingWorker<Integer, ScannerStatus> implements IProgressListener {
 
     /** The sections for which to generate EPF reports. */
-//    private static final String[] SECTIONS = {"001", "401", "801", "809"};
-    private static final String[] SECTIONS = {"002"};
+    private static final String[] SECTIONS = {"001", "401", "801", "809"};
+//    private static final String[] SECTIONS = {"002"};
 
     /** The scanner. */
     private final EPFStudents scanner;

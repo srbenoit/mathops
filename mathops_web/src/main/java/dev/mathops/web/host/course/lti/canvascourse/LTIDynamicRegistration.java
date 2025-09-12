@@ -288,6 +288,7 @@ public enum LTIDynamicRegistration {
 
                         AbstractSite.sendReply(req, resp, Page.MIME_TEXT_HTML, htm);
                     } catch (final SQLException ex) {
+                        Log.warning(ex);
                         final String msg = "LTI Tool registration failed - database error.";
                         PageError.showErrorPage(req, resp, SUBTITLE, msg);
                     }
